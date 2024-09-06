@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 import json
 
 # Discord 설정
-TOKEN = 'MTI3NzkxMzkxNDQ5OTI3MjczNQ.GOMieA.bHUw64unmlWiIXjs8iE3Eh_8jLv6jbxk_dYthU'
+TOKEN = ''
 CHANNEL_ID = 1236559949530791936  # 메시지를 보낼 채널의 ID
 
 # 시간 관련 설정 파일
