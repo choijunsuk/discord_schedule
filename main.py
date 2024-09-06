@@ -2,8 +2,8 @@ import discord
 from discord.ext import commands
 from config import TOKEN, CHANNEL_ID, save_times, start_date, kugaras_base_time, escu_base_time, spoon_base_time, natiak_base_time
 from messaging import schedule_messages
-from modify import modify_time
-from scheduler import initialize_schedule, schedule_data
+from modify import modify_time  # 함수 이름이 일치해야 합니다
+from scheduler import initialize_schedule, schedule_data, load_schedule ,save_schedule
 from datetime import datetime, timedelta
 
 # Discord 봇 설정
@@ -18,9 +18,9 @@ async def on_ready():
     bot.loop.create_task(schedule_messages(channel))
     save_times(start_date, kugaras_base_time, escu_base_time, spoon_base_time, natiak_base_time)
 
-# /막타 커맨드 정의: 하루 스케줄 표시
 @bot.command(name='막타')
 async def last_hit(ctx):
+    load_schedule()  # 최신 스케줄 데이터를 파일에서 로드합니다
     today = datetime.now().date()
     info = "오늘의 스케줄:\n"
     todays_events = sorted(
@@ -33,9 +33,9 @@ async def last_hit(ctx):
         info += f"{event['datetime'].strftime('%Y-%m-%d')}: {event['event']}\n"
     await ctx.send(info)
 
-# /시간표 커맨드 정의: 사용자가 입력한 일 수만큼의 스케줄 표시
 @bot.command(name='시간표')
-async def timetable(ctx, days: int = 1):  # 기본값은 하루(1일)로 설정
+async def timetable(ctx, days: int = 1):
+    load_schedule()  # 최신 스케줄 데이터를 파일에서 로드합니다
     today = datetime.now().date()
     end_date = today + timedelta(days=days)
     info = f"{days}일간의 스케줄:\n"
@@ -49,10 +49,12 @@ async def timetable(ctx, days: int = 1):  # 기본값은 하루(1일)로 설정
         info += f"{event['datetime'].strftime('%Y-%m-%d %H:%M')}: {event['event']}\n"
     await ctx.send(info)
 
-# /수정 커맨드 등록
 @bot.command(name='수정')
 async def modify_time_command(ctx, time: str, event: str):
-    await modify_time(ctx, time, event)
+    load_schedule()  # 최신 스케줄 데이터를 파일에서 로드합니다
+    response = modify_time(time, event)
+    save_schedule()  # 수정 후 즉시 스케줄 데이터를 저장합니다
+    await ctx.send(response)
 
 # 스케줄 초기화
 initialize_schedule()
